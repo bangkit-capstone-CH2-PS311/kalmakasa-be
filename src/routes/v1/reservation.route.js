@@ -25,6 +25,6 @@ router
 
 router
   .route('/google/create')
-  .post(reservationController.createEvent)
+  .get(reservationController.createEvent)
 
 module.exports = router;

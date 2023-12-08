@@ -3,8 +3,19 @@ const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { reservationService } = require('../services');
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 const config = require('../config/config');
+
+// Create an OAuth2 client instance
+const oauth2Client = new google.auth.OAuth2(
+  config.calendar.clientId,
+  config.calendar.clientSecret,
+  config.calendar.redirectUrl
+);
+
+const scopes = [
+  'https://www.googleapis.com/auth/calendar'
+];
 
 const calendar = google.calendar({
   version: 'v3',
@@ -12,37 +23,30 @@ const calendar = google.calendar({
 });
 
 const createReservation = catchAsync(async (req, res) => {
-	const reservation = await reservationService.createReservation(req.body);
-	res.status(httpStatus.CREATED).send(reservation);
+  const reservation = await reservationService.createReservation(req.body);
+  res.status(httpStatus.CREATED).send(reservation);
 });
 
 const getReservations = catchAsync(async (req, res) => {
-	const filter = pick(req.query, ["userId", "consultantId", "status"]);
-	const options = pick(req.query, ["sortBy", "limit", "page"]);
-	const result = await reservationService.getReservations(filter, options);
-	res.send(result);
+  const filter = pick(req.query, ["userId", "consultantId", "status"]);
+  const options = pick(req.query, ["sortBy", "limit", "page"]);
+  const result = await reservationService.getReservations(filter, options);
+  res.send(result);
 });
 
 const getReservationById = catchAsync(async (req, res) => {
-	const reservation = await reservationService.getReservationById(
-		req.params.reservationId
-	);
-	if (!reservation) {
-		throw new ApiError(httpStatus.NOT_FOUND, "Reservation not found");
-	}
-	res.send(reservation);
+  const reservation = await reservationService.getReservationById(
+    req.params.reservationId
+  );
+  if (!reservation) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Reservation not found");
+  }
+  res.send(reservation);
 });
 
 const getGoogleCalendar = catchAsync(async (req, res) => {
-  const oAuth2Client = new google.auth.OAuth2(
-    config.calendar.clientId,
-    config.calendar.clientSecret,
-    config.calendar.redirectUrl
-  );
-  const scopes = [
-    'https://www.googleapis.com/auth/calendar'
-  ];
-  const url = oAuth2Client.generateAuthUrl({
+ 
+  const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes,
   });
@@ -51,16 +55,20 @@ const getGoogleCalendar = catchAsync(async (req, res) => {
 
 const getGoogleCalendarCallback = catchAsync(async (req, res) => {
   const code = req.query.code;
+  console.log('query', code)
 
-  const {tokens} = await oauth2Client.getToken(code)
+  const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
 
   res.send({
     msg: "you have successfully authenticated with google calendar"
-  })
-})
+  });
+});
 
 const createEvent = catchAsync(async (req, res) => {
+  console.log(oauth2Client.getAccessToken())
+  const requestId = Math.random().toString(36).substring(7);
+  const now = new Date();
 
   const eventStartTime = new Date();
   eventStartTime.setDate(now.getDate() + 2);
@@ -94,19 +102,43 @@ const createEvent = catchAsync(async (req, res) => {
         {'method': 'popup', 'minutes': 10},
       ],
     },
+    'conferenceData': {
+      'createRequest': {
+        'requestId': requestId, // Use a random requestId
+      },
+    },
   };
+  try {
+    // Insert event and await the response
+    const { data: createdEvent } = await calendar.events.insert({
+      calendarId: 'primary',
+      auth: oauth2Client,
+      resource: event,
+      conferenceDataVersion: 1,
+    });
+
+    res.send({
+      msg: "Event created successfully",
+      createdEvent,
+    });
+  } catch (error) {
+    console.error("Error creating event:", error);
+    res.status(500).send({ error: "An error occurred while creating the event" });
+  }
 
   // insert event
-  calendar.events.insert({
-    calendarId: 'primary',
-    resource: event,
-  });
+  // const createdEvent = calendar.events.insert({
+  //   calendarId: 'primary',
+  //   auth: oauth2Client,
+  //   resource: event,
+  //   conferenceDataVersion: 1,
+  // });
 
-  res.send({
-    msg: "you have successfully created an event"
-  })
+  // res.send({
+  //   msg: "Event created successfully",
+  //   createdEvent
+  // });
 });
-
 
 module.exports = {
   createReservation,
