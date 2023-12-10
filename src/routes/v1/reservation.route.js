@@ -15,4 +15,13 @@ router
   .route('/:reservationId')
   .get(validate(reservationValidation.getReservation), reservationController.getReservationById)
 
+router
+  .route('/google/login')
+  .get(reservationController.getGoogleCalendar)
+
+router 
+  .route('/google/callback')
+  .get(reservationController.getGoogleCalendarCallback)
+
+
 module.exports = router;
