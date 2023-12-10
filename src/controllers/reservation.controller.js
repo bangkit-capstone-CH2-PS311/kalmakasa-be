@@ -23,8 +23,65 @@ const calendar = google.calendar({
 });
 
 const createReservation = catchAsync(async (req, res) => {
-  const reservation = await reservationService.createReservation(req.body);
-  res.status(httpStatus.CREATED).send(reservation);
+
+  const { date, startTime, endTime, consultantId, userId } = req.body;
+  const startDateTime = new Date(date);
+  const endDateTime = new Date(date);
+
+  const [startHour, startMinute] = startTime.split('.').map(Number);
+  const [endHour, endMinute] = endTime.split('.').map(Number);
+
+  startDateTime.setHours(startHour, startMinute, 0, 0);
+  endDateTime.setHours(endHour, endMinute, 0, 0);
+  const timezone = 'Asia/Jakarta';
+  const requestId = Math.random().toString(36).substring(7);
+
+  const event = {
+    'summary': 'Konsultasi dengan ' + consultantId,
+    'location': '800 Howard St., San Francisco, CA 94103',
+    'description': 'A chance to hear more about Google\'s developer products.',
+    'start': {
+      'dateTime': startDateTime,
+      'timeZone': timezone,
+    },
+    'end': {
+      'dateTime': endDateTime,
+      'timeZone': timezone,
+    },
+    'attendees': [
+      {'email': 'gilangpramdya84@gmail.com'},
+    ],
+    'reminders': {
+      'useDefault': false,
+      'overrides': [
+        {'method': 'email', 'minutes': 24 * 60},
+        {'method': 'popup', 'minutes': 10},
+      ],
+    },
+    'conferenceData': {
+      'createRequest': {
+        'requestId': requestId, // Use a random requestId
+      },
+    },
+  };
+  try {
+    const { data: createdEvent } = await calendar.events.insert({
+      calendarId: 'primary',
+      auth: oauth2Client,
+      resource: event,
+      conferenceDataVersion: 1,
+    });
+    const reservation = await reservationService.createReservation(req.body);
+
+    res.send({
+      msg: "Event created successfully",
+      createdEvent,
+      reservation
+    });
+  } catch (error) {
+    console.error("Error creating event:", error);
+    res.status(500).send({ error: "An error occurred while creating the event" });
+  }
 });
 
 const getReservations = catchAsync(async (req, res) => {
@@ -65,86 +122,10 @@ const getGoogleCalendarCallback = catchAsync(async (req, res) => {
   });
 });
 
-const createEvent = catchAsync(async (req, res) => {
-  console.log(oauth2Client.getAccessToken())
-  const requestId = Math.random().toString(36).substring(7);
-  const now = new Date();
-
-  const eventStartTime = new Date();
-  eventStartTime.setDate(now.getDate() + 2);
-  eventStartTime.setHours(now.getHours() + 2);
-
-  const eventEndTime = new Date();
-  eventEndTime.setDate(now.getDate() + 2);
-  eventEndTime.setHours(now.getHours() + 3);
-
-  const timezone = 'Asia/Jakarta';
-
-  const event = {
-    'summary': 'Google I/O 2015',
-    'location': '800 Howard St., San Francisco, CA 94103',
-    'description': 'A chance to hear more about Google\'s developer products.',
-    'start': {
-      'dateTime': eventStartTime,
-      'timeZone': timezone,
-    },
-    'end': {
-      'dateTime': eventEndTime,
-      'timeZone': timezone,
-    },
-    'attendees': [
-      {'email': 'gilangpramdya84@gmail.com'},
-    ],
-    'reminders': {
-      'useDefault': false,
-      'overrides': [
-        {'method': 'email', 'minutes': 24 * 60},
-        {'method': 'popup', 'minutes': 10},
-      ],
-    },
-    'conferenceData': {
-      'createRequest': {
-        'requestId': requestId, // Use a random requestId
-      },
-    },
-  };
-  try {
-    // Insert event and await the response
-    const { data: createdEvent } = await calendar.events.insert({
-      calendarId: 'primary',
-      auth: oauth2Client,
-      resource: event,
-      conferenceDataVersion: 1,
-    });
-
-    res.send({
-      msg: "Event created successfully",
-      createdEvent,
-    });
-  } catch (error) {
-    console.error("Error creating event:", error);
-    res.status(500).send({ error: "An error occurred while creating the event" });
-  }
-
-  // insert event
-  // const createdEvent = calendar.events.insert({
-  //   calendarId: 'primary',
-  //   auth: oauth2Client,
-  //   resource: event,
-  //   conferenceDataVersion: 1,
-  // });
-
-  // res.send({
-  //   msg: "Event created successfully",
-  //   createdEvent
-  // });
-});
-
 module.exports = {
   createReservation,
   getReservations,
   getReservationById,
   getGoogleCalendar,
   getGoogleCalendarCallback,
-  createEvent
 };

@@ -23,8 +23,5 @@ router
   .route('/google/callback')
   .get(reservationController.getGoogleCalendarCallback)
 
-router
-  .route('/google/create')
-  .get(reservationController.createEvent)
 
 module.exports = router;
