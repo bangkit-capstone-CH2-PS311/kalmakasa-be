@@ -10,6 +10,7 @@ const createConsultant = {
     patients: Joi.number(),
     bio: Joi.string(),
     rating: Joi.number(),
+    speciality: Joi.array().items(Joi.string()),
     // Add any other fields you want to include in the validation
   }),
 };

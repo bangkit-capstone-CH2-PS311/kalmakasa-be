@@ -36,6 +36,12 @@ const consultantSchema = mongoose.Schema(
         ref: 'Review',
       },
     ],
+    speciality: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     // Add any other fields you want to include in the model
   },
   {

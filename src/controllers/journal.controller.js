@@ -3,6 +3,7 @@ const pick = require("../utils/pick");
 const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const { journalService } = require("../services");
+const { tokenService } = require("../services");
 
 const createJournal = catchAsync(async (req, res) => {
 	const journal = await journalService.createJournal(req.body);
@@ -10,7 +11,13 @@ const createJournal = catchAsync(async (req, res) => {
 });
 
 const getJournals = catchAsync(async (req, res) => {
-	const filter = pick(req.query, ["userId", "date", "title"]);
+	// get user logon
+	let token = req.headers.authorization
+	token = token.replace('Bearer ', '');
+	const userId = await tokenService.getUserByToken(token);
+
+	let filter = pick(req.query, ["consultantId", "status"]);
+	filter = { ...filter, userId: userId };
 	const options = pick(req.query, ["sortBy", "limit", "page"]);
 	const result = await journalService.getJournals(filter, options);
 	res.send(result);
