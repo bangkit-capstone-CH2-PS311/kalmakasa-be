@@ -21,7 +21,13 @@ const createReservation = async (reservationBody) => {
  * @returns {Promise<QueryResult>}
  */
 const getReservations = async (filter, options) => {
-  const reservations = await Reservation.paginate(filter, options);
+  const reservations = await Reservation.paginate(filter, {
+      ...options,
+      populate: [
+        'userId',
+        'consultantId'
+      ]
+  });
   return reservations;
 };
 

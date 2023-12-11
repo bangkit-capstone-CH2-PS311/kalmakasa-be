@@ -13,7 +13,7 @@ const reservationSchema = mongoose.Schema(
 		},
 		consultantId: {
 			type: mongoose.SchemaTypes.ObjectId,
-			ref: "User",
+			ref: "Consultant",
 			trim: true,
 		},
 		startTime: {
