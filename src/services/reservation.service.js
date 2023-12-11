@@ -32,7 +32,7 @@ const getReservations = async (filter, options) => {
 };
 
 const getReservationById = async (id) => {
-  return Reservation.findById(id);
+  return Reservation.findById(id).populate('userId').populate('consultantId');
 };
 
 module.exports = {
