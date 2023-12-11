@@ -3,8 +3,10 @@ const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { reservationService } = require('../services');
+const { tokenService } = require('../services');
 const { google } = require('googleapis');
 const config = require('../config/config');
+
 
 // Create an OAuth2 client instance
 const oauth2Client = new google.auth.OAuth2(
@@ -85,7 +87,14 @@ const createReservation = catchAsync(async (req, res) => {
 });
 
 const getReservations = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ["userId", "consultantId", "status"]);
+
+  // get user logon
+  let token = req.headers.authorization
+  token = token.replace('Bearer ', '');
+  const userId = await tokenService.getUserByToken(token);
+
+  let filter = pick(req.query, ["consultantId", "status"]);
+  filter = { ...filter, userId: userId };
   const options = pick(req.query, ["sortBy", "limit", "page"]);
   const result = await reservationService.getReservations(filter, options);
   res.send(result);

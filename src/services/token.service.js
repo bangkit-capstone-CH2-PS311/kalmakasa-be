@@ -113,6 +113,16 @@ const generateVerifyEmailToken = async (user) => {
   return verifyEmailToken;
 };
 
+const getUserByToken = async (token) => {
+  const payload = jwt.verify(token, config.jwt.secret);
+  const user = await userService.getUserById(payload.sub);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user;
+};
+
+
 module.exports = {
   generateToken,
   saveToken,
@@ -120,4 +130,5 @@ module.exports = {
   generateAuthTokens,
   generateResetPasswordToken,
   generateVerifyEmailToken,
+  getUserByToken
 };
