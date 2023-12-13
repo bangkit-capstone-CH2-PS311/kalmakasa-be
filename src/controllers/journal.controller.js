@@ -13,11 +13,17 @@ const createJournal = catchAsync(async (req, res) => {
 const getJournals = catchAsync(async (req, res) => {
 	// get user logon
 	let token = req.headers.authorization
+	let userId = null;
+
+	if (token) {
 	token = token.replace('Bearer ', '');
-	const userId = await tokenService.getUserByToken(token);
+	userId = await tokenService.getUserByToken(token);
+	}
 
 	let filter = pick(req.query, ["consultantId", "status"]);
-	filter = { ...filter, userId: userId };
+	if (userId) {
+		filter = { ...filter, userId };
+	}
 	const options = pick(req.query, ["sortBy", "limit", "page"]);
 	const result = await journalService.getJournals(filter, options);
 	res.send(result);

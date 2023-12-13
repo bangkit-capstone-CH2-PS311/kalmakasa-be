@@ -14,6 +14,8 @@ router
 router
   .route('/:reservationId')
   .get(validate(reservationValidation.getReservation), reservationController.getReservationById)
+  .patch(validate(reservationValidation.updateReservation), reservationController.updateReservation)
+
 
 router
   .route('/google/login')
