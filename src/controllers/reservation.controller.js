@@ -86,15 +86,26 @@ const createReservation = catchAsync(async (req, res) => {
   }
 });
 
+const updateReservation = catchAsync(async (req, res) => {
+  const reservation = await reservationService.updateReservation(req.params.reservationId, req.body);
+  res.send(reservation);
+});
+
 const getReservations = catchAsync(async (req, res) => {
 
   // get user logon
   let token = req.headers.authorization
-  token = token.replace('Bearer ', '');
-  const userId = await tokenService.getUserByToken(token);
+  let userId = null;
 
+  if (token) {
+    token = token.replace('Bearer ', '');
+    userId = await tokenService.getUserByToken(token);
+  }
+ 
   let filter = pick(req.query, ["consultantId", "status"]);
-  filter = { ...filter, userId: userId };
+  if (userId) {
+    filter = { ...filter, userId };
+  }
   const options = pick(req.query, ["sortBy", "limit", "page"]);
   const result = await reservationService.getReservations(filter, options);
   res.send(result);
@@ -133,8 +144,10 @@ const getGoogleCalendarCallback = catchAsync(async (req, res) => {
 
 module.exports = {
   createReservation,
+  updateReservation,
   getReservations,
   getReservationById,
   getGoogleCalendar,
   getGoogleCalendarCallback,
+
 };

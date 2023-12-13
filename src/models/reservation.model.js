@@ -44,6 +44,22 @@ const reservationSchema = mongoose.Schema(
 			type: String,
 			trim: true,
 		},
+		commonIssues: {
+			type: String,
+			trim: true,
+		},
+		psychologicalDynamics: {
+			type: String,
+			trim: true,
+		},
+		triggers: {
+			type: String,
+			trim: true,
+		},
+		recommendation: {
+			type: String,
+			trim: true,
+		},
 	},
 	{
 		timestamps: true,

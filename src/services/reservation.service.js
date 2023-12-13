@@ -11,6 +11,16 @@ const createReservation = async (reservationBody) => {
   return Reservation.create(reservationBody);
 };
 
+const updateReservation = async (reservationId, updateBody) => {
+  const reservation = await getReservationById(reservationId);
+  if (!reservation) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Reservation not found');
+  }
+  Object.assign(reservation, updateBody);
+  await reservation.save();
+  return reservation;
+};
+
 /**
  * Get list of reservations
  * @param {Object} filter - Mongo filter
@@ -39,4 +49,5 @@ module.exports = {
   createReservation,
   getReservations,
   getReservationById,
+  updateReservation,
 };

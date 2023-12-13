@@ -9,7 +9,31 @@ const createReservation = {
     startTime: Joi.string().required(),
     endTime: Joi.string().required(),
     notes: Joi.string(),
+    commonIssues: Joi.string(),
+    psychologicalDynamics: Joi.string(),
+    triggers: Joi.string(),
+    recommendation: Joi.string(),
   }),
+};
+
+const updateReservation = {
+  params: Joi.object().keys({
+    reservationId: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      userId: Joi.string().custom(objectId),
+      consultantId: Joi.string().custom(objectId),
+      date: Joi.date(),
+      startTime: Joi.string(),
+      endTime: Joi.string(),
+      notes: Joi.string(),
+      commonIssues: Joi.string(),
+      psychologicalDynamics: Joi.string(),
+      triggers: Joi.string(),
+      recommendation: Joi.string(),
+    })
+    .min(1),
 };
 
 const getReservations = {
@@ -32,6 +56,7 @@ const getReservation = {
 
 module.exports = {
   createReservation,
+  updateReservation,
   getReservations,
   getReservation,
 };
