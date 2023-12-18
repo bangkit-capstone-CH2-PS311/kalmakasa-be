@@ -4,3 +4,4 @@ module.exports.userService = require("./user.service");
 module.exports.reservationService = require("./reservation.service");
 module.exports.consultantService = require("./consultant.service");
 module.exports.journalService = require("./journal.service");
+module.exports.dassResultService = require("./dassresult.service");
