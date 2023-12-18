@@ -13,15 +13,17 @@ const journalSchema = mongoose.Schema(
 			required: true,
 			trim: true,
 		},
-		title: {
-			type: String,
-			required: true,
-			trim: true,
-		},
 		content: {
 			type: String,
 			required: true,
 			trim: true,
+		},
+		emotionScale: {
+			type: Number,
+			required: true,
+			trim: true,
+			min: 1,
+			max: 5,
 		},
 		sentimentResult: {
 			type: String,

@@ -5,7 +5,7 @@ const createJournal = {
 	body: Joi.object().keys({
 		userId: Joi.string().required().custom(objectId),
 		date: Joi.date().required(),
-		title: Joi.string().required(),
+		emotionScale: Joi.number().required().min(1).max(5),
 		content: Joi.string().required(),
 		sentimentResult: Joi.string(),
 	}),
@@ -15,7 +15,7 @@ const getJournals = {
 	query: Joi.object().keys({
 		userId: Joi.string().custom(objectId),
 		date: Joi.date(),
-		title: Joi.string(),
+		emotionScale: Joi.number().min(1).max(5),
 		sortBy: Joi.string(),
 		limit: Joi.number().integer(),
 		page: Joi.number().integer(),
