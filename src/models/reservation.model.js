@@ -13,6 +13,11 @@ const reservationSchema = mongoose.Schema(
 		},
 		consultantId: {
 			type: mongoose.SchemaTypes.ObjectId,
+			ref: "User",
+			trim: true,
+		},
+		consultant: {
+			type: mongoose.SchemaTypes.ObjectId,
 			ref: "Consultant",
 			trim: true,
 		},

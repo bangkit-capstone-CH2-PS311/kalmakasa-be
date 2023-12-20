@@ -5,6 +5,7 @@ const createReservation = {
   body: Joi.object().keys({
     userId: Joi.string().required().custom(objectId),
     consultantId: Joi.string().required().custom(objectId),
+    consultant: Joi.string().required().custom(objectId),
     date: Joi.date().required(),
     startTime: Joi.string().required(),
     endTime: Joi.string().required(),

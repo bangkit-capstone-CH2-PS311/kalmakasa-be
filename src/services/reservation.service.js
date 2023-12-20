@@ -35,7 +35,8 @@ const getReservations = async (filter, options) => {
       ...options,
       populate: [
         'userId',
-        'consultantId'
+        'consultantId',
+        'consultant'
       ]
   });
   return reservations;
