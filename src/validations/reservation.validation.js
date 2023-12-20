@@ -47,6 +47,7 @@ const updateReservation = {
       psychologicalDynamics: Joi.string(),
       triggers: Joi.string(),
       recommendation: Joi.string(),
+      status: Joi.string(),
     })
     .min(1),
 };
