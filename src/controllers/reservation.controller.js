@@ -86,12 +86,15 @@ const createMeetingLink = catchAsync(async (req, res) => {
       conferenceDataVersion: 1,
     });
 
+    console.log('createdEvent', createdEvent)
+
     // update reservation meeting link
     const reservation = await reservationService.updateReservation(req.params.reservationId, { meetingLink: createdEvent.hangoutLink });
 
+    console.log('reservation', reservation.meetingLink)
+
     res.send({
-      msg: "Event created successfully",
-      createdEvent,
+      msg: "Event created successfully"
     });
   } catch (error) {
     console.error("Error creating event:", error);
