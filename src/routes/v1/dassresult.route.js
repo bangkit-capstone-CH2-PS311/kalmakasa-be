@@ -17,9 +17,9 @@ router
 	);
 
 router
-	.route("/:dassresultId")
+	.route("/:dassResultId")
 	.get(
-		validate(dassresultValidation.getDassResult),
+		validate(dassresultValidation.getDassResultById),
 		dassresultController.getDassResultById
 	);
 
