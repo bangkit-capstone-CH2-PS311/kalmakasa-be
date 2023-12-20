@@ -19,14 +19,16 @@ const createReservation = {
 };
 
 const createMeetingLink = {
+  params: Joi.object().keys({
+    reservationId: Joi.string().required().custom(objectId),
+  }),
   body: Joi.object().keys({
     date: Joi.date().required(),
     startTime: Joi.string().required(),
     endTime: Joi.string().required(),
     consultantId: Joi.string().required().custom(objectId),
     userId: Joi.string().required().custom(objectId),
-    reservationId: Joi.string().required().custom(objectId),
-  }),
+  })
 };
 
 const updateReservation = {
