@@ -12,6 +12,10 @@ router
   .get(validate(reservationValidation.getReservations), reservationController.getReservations);
 
 router
+  .route('/google/create/:reservationId')
+  .post(validate(reservationValidation.createMeetingLink), reservationController.createMeetingLink)
+
+router
   .route('/:reservationId')
   .get(validate(reservationValidation.getReservation), reservationController.getReservationById)
   .patch(validate(reservationValidation.updateReservation), reservationController.updateReservation)

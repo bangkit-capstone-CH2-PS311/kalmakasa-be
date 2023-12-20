@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
+const { reservationService } = require('../services');
 
 const createReservation = {
   body: Joi.object().keys({
@@ -14,6 +15,17 @@ const createReservation = {
     psychologicalDynamics: Joi.string(),
     triggers: Joi.string(),
     recommendation: Joi.string(),
+  }),
+};
+
+const createMeetingLink = {
+  body: Joi.object().keys({
+    date: Joi.date().required(),
+    startTime: Joi.string().required(),
+    endTime: Joi.string().required(),
+    consultantId: Joi.string().required().custom(objectId),
+    userId: Joi.string().required().custom(objectId),
+    reservationId: Joi.string().required().custom(objectId),
   }),
 };
 
@@ -57,6 +69,7 @@ const getReservation = {
 
 module.exports = {
   createReservation,
+  createMeetingLink,
   updateReservation,
   getReservations,
   getReservation,

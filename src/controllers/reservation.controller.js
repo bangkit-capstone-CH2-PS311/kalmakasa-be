@@ -7,7 +7,6 @@ const { tokenService } = require('../services');
 const { google } = require('googleapis');
 const config = require('../config/config');
 
-
 // Create an OAuth2 client instance
 const oauth2Client = new google.auth.OAuth2(
   config.calendar.clientId,
@@ -25,59 +24,11 @@ const calendar = google.calendar({
 });
 
 const createReservation = catchAsync(async (req, res) => {
-
-  // const { date, startTime, endTime, consultantId, userId } = req.body;
-  // const startDateTime = new Date(date);
-  // const endDateTime = new Date(date);
-
-  // const [startHour, startMinute] = startTime.split('.').map(Number);
-  // const [endHour, endMinute] = endTime.split('.').map(Number);
-
-  // startDateTime.setHours(startHour, startMinute, 0, 0);
-  // endDateTime.setHours(endHour, endMinute, 0, 0);
-  // const timezone = 'Asia/Jakarta';
-  // const requestId = Math.random().toString(36).substring(7);
-
-  // const event = {
-  //   'summary': 'Konsultasi dengan ' + consultantId,
-  //   'location': '800 Howard St., San Francisco, CA 94103',
-  //   'description': 'A chance to hear more about Google\'s developer products.',
-  //   'start': {
-  //     'dateTime': startDateTime,
-  //     'timeZone': timezone,
-  //   },
-  //   'end': {
-  //     'dateTime': endDateTime,
-  //     'timeZone': timezone,
-  //   },
-  //   'attendees': [
-  //     {'email': 'gilangpramdya84@gmail.com'},
-  //   ],
-  //   'reminders': {
-  //     'useDefault': false,
-  //     'overrides': [
-  //       {'method': 'email', 'minutes': 24 * 60},
-  //       {'method': 'popup', 'minutes': 10},
-  //     ],
-  //   },
-  //   'conferenceData': {
-  //     'createRequest': {
-  //       'requestId': requestId, // Use a random requestId
-  //     },
-  //   },
-  // };
   try {
-    // const { data: createdEvent } = await calendar.events.insert({
-    //   calendarId: 'primary',
-    //   auth: oauth2Client,
-    //   resource: event,
-    //   conferenceDataVersion: 1,
-    // });
     const reservation = await reservationService.createReservation(req.body);
 
     res.send({
       msg: "Event created successfully",
-      // createdEvent,
       reservation
     });
   } catch (error) {
@@ -85,6 +36,69 @@ const createReservation = catchAsync(async (req, res) => {
     res.status(500).send({ error: "An error occurred while creating the event" });
   }
 });
+
+const createMeetingLink = catchAsync(async (req, res) => {
+  const { date, startTime, endTime, consultantId, userId } = req.body;
+  const startDateTime = new Date(date);
+  const endDateTime = new Date(date);
+
+  const [startHour, startMinute] = startTime.split('.').map(Number);
+  const [endHour, endMinute] = endTime.split('.').map(Number);
+
+  startDateTime.setHours(startHour, startMinute, 0, 0);
+  endDateTime.setHours(endHour, endMinute, 0, 0);
+  const timezone = 'Asia/Jakarta';
+  const requestId = Math.random().toString(36).substring(7);
+
+  const event = {
+    'summary': 'Konsultasi dengan ' + userId,
+    'description': 'Kalmakasa consultation session',
+    'start': {
+      'dateTime': startDateTime,
+      'timeZone': timezone,
+    },
+    'end': {
+      'dateTime': endDateTime,
+      'timeZone': timezone,
+    },
+    'attendees': [
+      {'email': 'dzakynashshar@gmail.com'},
+    ],
+    'reminders': {
+      'useDefault': false,
+      'overrides': [
+        {'method': 'email', 'minutes': 24 * 60},
+        {'method': 'popup', 'minutes': 10},
+      ],
+    },
+    'conferenceData': {
+      'createRequest': {
+        'requestId': requestId, // Use a random requestId
+      },
+    },
+  };
+
+  try {
+    const { data: createdEvent } = await calendar.events.insert({
+      calendarId: 'primary',
+      auth: oauth2Client,
+      resource: event,
+      conferenceDataVersion: 1,
+    });
+
+    // update reservation meeting link
+    const reservation = await reservationService.updateReservation(req.params.reservationId, { meetingLink: createdEvent.hangoutLink });
+
+    res.send({
+      msg: "Event created successfully",
+      createdEvent,
+    });
+  } catch (error) {
+    console.error("Error creating event:", error);
+    res.status(500).send({ error: "An error occurred while creating the event" });
+  }
+});
+
 
 const updateReservation = catchAsync(async (req, res) => {
   const reservation = await reservationService.updateReservation(req.params.reservationId, req.body);
@@ -149,6 +163,7 @@ const getGoogleCalendarCallback = catchAsync(async (req, res) => {
 
 module.exports = {
   createReservation,
+  createMeetingLink,
   updateReservation,
   getReservations,
   getReservationById,
