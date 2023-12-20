@@ -101,10 +101,15 @@ const getReservations = catchAsync(async (req, res) => {
     token = token.replace('Bearer ', '');
     userId = await tokenService.getUserByToken(token);
   }
- 
-  let filter = pick(req.query, ["consultantId", "status"]);
+
+  console.log('userId', userId)
+  let filter = pick(req.query, ["status"]);
   if (userId) {
-    filter = { ...filter, userId };
+    if (userId.role === 'consultant') {
+      filter = { ...filter, consultantId: userId.id };
+    } else {
+      filter = { ...filter, userId: userId.id };
+    }
   }
   const options = pick(req.query, ["sortBy", "limit", "page"]);
   const result = await reservationService.getReservations(filter, options);
