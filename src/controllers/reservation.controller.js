@@ -146,7 +146,7 @@ const getGoogleCalendar = catchAsync(async (req, res) => {
     access_type: 'offline',
     scope: scopes,
   });
-  res.redirect(url);
+  res.send(url);
 });
 
 const getGoogleCalendarCallback = catchAsync(async (req, res) => {
