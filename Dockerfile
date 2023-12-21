@@ -1,4 +1,6 @@
-FROM node:18
+FROM node:16.18-alpine
+
+WORKDIR /usr/src/node-app
 
 ARG PORT
 ARG NODE_ENV
@@ -28,18 +30,14 @@ ENV CLIENT_SECRET=${CLIENT_SECRET}
 ENV REDIRECT_URL=${REDIRECT_URL}
 ENV API_KEY=${API_KEY}
 
-RUN mkdir -p /usr/src/node-app && chown -R node:node /usr/src/node-app
+COPY package*.json ./
 
-WORKDIR /usr/src/node-app
+RUN npm install 
 
-COPY package.json yarn.lock ./
+COPY . .
 
-USER node
+RUN export NODE_ENV=development
 
-RUN yarn install --pure-lockfile
-
-COPY --chown=node:node . .
-
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["node", "src/index.js"]
